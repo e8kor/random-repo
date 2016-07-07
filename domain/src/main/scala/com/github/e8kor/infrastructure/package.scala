@@ -13,19 +13,19 @@ package object infrastructure {
   type AirportFilter = Airport => Boolean
   type RunawayFilter = Runaway => Boolean
 
-  implicit def flattenIterableOfFreeIterable[A[_], B](traversable: Iterable[Free[A, Iterable[B]]]): Free[A, Iterable[B]] = {
-    val pureF = pure[A, Iterable[B]]((Iterable empty)[B])
-    (pureF /: traversable) {
-      case (accum, action) =>
-        accum.flatMap {
-          existing =>
-            action.map {
-              fresh =>
-                existing ++ fresh
-            }
-        }
-    }
-  }
+//  implicit def flattenIterableOfFreeIterable[A[_], B](traversable: Iterable[Free[A, Iterable[B]]]): Free[A, Iterable[B]] = {
+//    val pureF = pure[A, Iterable[B]]((Iterable empty)[B])
+//    (pureF /: traversable) {
+//      case (accum, action) =>
+//        accum.flatMap {
+//          existing =>
+//            action.map {
+//              fresh =>
+//                existing ++ fresh
+//            }
+//        }
+//    }
+//  }
 
   implicit def flattenIterableOfFree[A[_], B](traversable: Iterable[Free[A, B]]): Free[A, Iterable[B]] = {
     val pureF = pure[A, Iterable[B]]((Iterable empty)[B])
