@@ -34,7 +34,7 @@ object Serializer {
 
     override def serialize(entity: HeadingLocation): Map[String, String] = {
       Map(
-        "he_la->!titude_deg" -> entity.latitude.toString,
+        "he_latitude_deg" -> entity.latitude.toString,
         "he_longitude_deg" -> entity.longitude.toString,
         "he_ident" -> entity.ident.getOrElse(""),
         "he_elevation_ft" -> entity.elevation.map(_.toString).getOrElse(""),

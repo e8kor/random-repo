@@ -1,9 +1,6 @@
 package com.github.e8kor.app
 
-import cats.free.Free
-import com.github.e8kor.domain.ServiceAction._
-import com.github.e8kor.domain.{AppInterpreter, ServiceAction}
-import com.github.e8kor.model.Record
+import com.github.e8kor.domain.{Action, AppInterpreter, Script}
 
 import scala.language.postfixOps
 
@@ -15,38 +12,22 @@ object Application extends App {
 
   lazy val interpreter = AppInterpreter()
 
-  lazy val recordsFree: Free[ServiceAction, Iterable[Record]] = {
-    keywords map {
-      keyword =>
-        findCountry(keyword) flatMap {
-          countries =>
-            countries map {
-              country =>
-                findAirports(country) flatMap {
-                  airports =>
-                    airports map {
-                      airport =>
-                        findRunway(airport) map {
-                          runaways =>
-                            airport -> runaways
-                        }
-                    }
-                } map {
-                  tuples =>
-                    country -> tuples
-                }
-            }
-        } map {
-          records =>
-            keyword -> records
+  lazy val script = Script
+
+  lazy val printFree: Action[Unit] = {
+    script findRecords keywords flatMap {
+      records =>
+        val countries = records flatMap {
+          case (_, items) =>
+            items
+        }
+        if (countries isEmpty) {
+          script searchSimilar(2, keywords) flatMap (script print)
+        } else {
+          script validate records flatMap (script print)
         }
     }
   }
-
-  lazy val printFree: Free[ServiceAction, Unit] = for {
-    recods <- recordsFree
-    nothing <- printResult(recods)
-  } yield nothing
 
   printFree foldMap interpreter
 }

@@ -8,7 +8,6 @@ sealed trait ScheduledService {
 
 }
 
-// TODO Can be type of showable
 object No extends ScheduledService {
 
   override val code: String = "no"

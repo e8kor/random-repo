@@ -62,10 +62,12 @@ object Filter {
         override def apply(v1: A): (B) => Boolean = {
           v2: B =>
             val distance = companion(v1)(v2)
-            if (precise > distance) {
+            if (distance == 0) { // not interested in exact matches
               false
-            } else {
+            } else if (precise >= distance) { // words are enough similar
               true
+            } else { // not interested if distance is bigger than precise
+              false
             }
         }
       }
