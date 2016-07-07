@@ -11,7 +11,8 @@ import scala.io.{Codec, Source}
 class SerializeCSVSpec extends PropertySpec {
 
   import com.github.e8kor.infrastructure.Deserializer._
-  import com.github.e8kor.infrastructure.Serializable._
+  import com.github.e8kor.infrastructure.Serializer._
+  import com.github.e8kor.infrastructure.SerializerToMap.ops._
 
   implicit val codec = Codec(Charset.defaultCharset())
 
@@ -22,7 +23,7 @@ class SerializeCSVSpec extends PropertySpec {
     val deserialized1 = list.flatMap(v => v.deserializeOpt[Airport])
 
     val (headers, body) = {
-      val tmp = deserialized1.map(v => v.serialize)
+      val tmp = deserialized1.map(v => v ->!)
       val v1 = tmp.headOption.map(v => v.keys.toSeq).toSeq
       val v2 = tmp.map(v => v.values.toSeq)
       v1 -> v2
@@ -50,7 +51,7 @@ class SerializeCSVSpec extends PropertySpec {
     val deserialized1 = list.flatMap(v => v.deserializeOpt[Country])
 
     val (headers, body) = {
-      val tmp = deserialized1.map(v => v.serialize)
+      val tmp = deserialized1.map(v => v ->!)
       val v1 = tmp.headOption.map(v => v.keys.toSeq).toSeq
       val v2 = tmp.map(v => v.values.toSeq)
       v1 -> v2
@@ -77,7 +78,7 @@ class SerializeCSVSpec extends PropertySpec {
     val deserialized1 = list.flatMap(v => v.deserializeOpt[Runaway])
 
     val (headers, body) = {
-      val tmp = deserialized1.map(v => v.serialize)
+      val tmp = deserialized1.map(v => v ->!)
       val v1 = tmp.headOption.map(v => v.keys.toSeq).toSeq
       val v2 = tmp.map(v => v.values.toSeq)
       v1 -> v2
