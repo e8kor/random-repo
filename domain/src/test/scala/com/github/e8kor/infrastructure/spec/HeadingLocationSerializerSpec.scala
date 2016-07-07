@@ -9,9 +9,10 @@ class HeadingLocationSerializerSpec extends PropertySpec {
   property("serialize", props) {
     forAll {
       entity: HeadingLocation =>
-        import com.github.e8kor.infrastructure.Serializable._
+        import com.github.e8kor.infrastructure.Serializer._
+        import com.github.e8kor.infrastructure.SerializerToMap.ops._
 
-        val dictionary = entity.serialize
+        val dictionary = entity ->!
         val testificant = Map(
           "he_latitude_deg" -> entity.latitude.toString,
           "he_longitude_deg" -> entity.longitude.toString,

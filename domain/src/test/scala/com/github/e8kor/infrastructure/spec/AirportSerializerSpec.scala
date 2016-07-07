@@ -9,9 +9,10 @@ class AirportSerializerSpec extends PropertySpec {
   property("serialize", props) {
     forAll {
       entity: Airport =>
-        import com.github.e8kor.infrastructure.Serializable._
+        import com.github.e8kor.infrastructure.Serializer._
+        import com.github.e8kor.infrastructure.SerializerToMap.ops._
 
-        val dictionary = entity.serialize
+        val dictionary = entity ->!
         val testificant = Map(
           "id" -> entity.id.toString,
           "type" -> entity.`type`.code,
@@ -27,7 +28,7 @@ class AirportSerializerSpec extends PropertySpec {
           "home_link" -> entity.homeLink.map(_.toExternalForm).getOrElse(""),
           "wikipedia_link" -> entity.wikipediaLink.map(_.toExternalForm).getOrElse(""),
           "keywords" -> entity.keywords.mkString(",")
-        ) ++ entity.location.serialize
+        ) ++ (entity.location ->!)
 
         dictionary should equal(testificant)
     }
