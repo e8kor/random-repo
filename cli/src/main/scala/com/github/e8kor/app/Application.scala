@@ -8,26 +8,37 @@ object Application extends App {
 
   implicit val _ = Repository
 
-  lazy val keywords: Iterable[String] = args toIterable
+  val keywords: Iterable[String] = args toIterable
 
-  lazy val interpreter = AppInterpreter()
+  val interpreter = AppInterpreter()
 
-  lazy val script = Script
+  val script = Script
 
-  lazy val printFree: Action[Unit] = {
-    script findRecords keywords flatMap {
-      records =>
-        val countries = records flatMap {
-          case (_, items) =>
-            items
-        }
-        if (countries isEmpty) {
-          script searchSimilar(2, keywords) flatMap (script print)
-        } else {
-          script validate records flatMap (script print)
-        }
+  if (keywords nonEmpty) {
+    val printFree: Action[Unit] = {
+      script findRecords keywords flatMap {
+        records =>
+          val countries = records flatMap {
+            case (_, items) =>
+              items
+          }
+          if (countries isEmpty) {
+            script searchSimilar(2, keywords) flatMap (script showSimilarCountries)
+          } else {
+            script validate records flatMap (script showResult)
+          }
+      }
     }
-  }
 
-  printFree foldMap interpreter
+    printFree foldMap interpreter
+  } else {
+    val printFree: Action[Unit] = for {
+      highest <- (script getTop10HighestAmountOfAirports)
+      _ <- script showReport(true, highest)
+      least <- (script getTop10LeastAmountOfAirports)
+      _ <- script showReport(false, least)
+    } yield ()
+
+    printFree foldMap interpreter
+  }
 }
