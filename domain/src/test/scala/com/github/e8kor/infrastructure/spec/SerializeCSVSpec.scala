@@ -10,7 +10,7 @@ import scala.io.{Codec, Source}
 
 class SerializeCSVSpec extends PropertySpec {
 
-  import com.github.e8kor.infrastructure.Deserializable._
+  import com.github.e8kor.infrastructure.Deserializer._
   import com.github.e8kor.infrastructure.Serializable._
 
   implicit val codec = Codec(Charset.defaultCharset())

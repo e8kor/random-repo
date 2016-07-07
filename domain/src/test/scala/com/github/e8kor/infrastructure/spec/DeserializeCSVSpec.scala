@@ -2,7 +2,7 @@ package com.github.e8kor.infrastructure.spec
 
 import java.nio.charset.Charset
 
-import com.github.e8kor.infrastructure.Deserializable._
+import com.github.e8kor.infrastructure.Deserializer._
 import com.github.e8kor.model.{Airport, Country, Runaway}
 import com.github.tototoshi.csv.CSVReader
 

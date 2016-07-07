@@ -1,4 +1,4 @@
-package com.github.e8kor.infrastructure.experimental
+package com.github.e8kor.infrastructure
 
 import java.net.URL
 
@@ -8,7 +8,7 @@ import simulacrum.{op, typeclass}
 
 import scala.language.postfixOps
 
-trait Deser[A, B] {
+trait Deserializer[A, B] {
 
   def deserializeOpt(raw: A): Option[B]
 
@@ -18,7 +18,7 @@ trait Deser[A, B] {
 
 }
 
-@typeclass trait DeserFromMap[T] extends Deser[Map[String, String], T] {
+@typeclass trait DeserializerFromMap[T] extends Deserializer[Map[String, String], T] {
 
   @op("?<-") override def deserializeOpt(raw: Map[String, String]): Option[T]
 
@@ -27,7 +27,7 @@ trait Deser[A, B] {
   }
 }
 
-object Deserializable {
+object Deserializer {
 
   private def filterOutEmpty[T](dictionary: Map[T, String]): Map[T, String] = {
     dictionary.filterNot {
@@ -38,19 +38,19 @@ object Deserializable {
 
   implicit class MapDeserializableOps(raw: Map[String, String]) {
 
-    def deserialize[A: DeserFromMap]: A = {
-      val ev = implicitly[DeserFromMap[A]]
+    def deserialize[A: DeserializerFromMap]: A = {
+      val ev = implicitly[DeserializerFromMap[A]]
       ev.deserialize(raw)
     }
 
-    def deserializeOpt[A: DeserFromMap]: Option[A] = {
-      val ev = implicitly[DeserFromMap[A]]
+    def deserializeOpt[A: DeserializerFromMap]: Option[A] = {
+      val ev = implicitly[DeserializerFromMap[A]]
       ev.deserializeOpt(raw)
     }
 
   }
 
-  implicit object HeadingLocationDeserializer extends DeserFromMap[HeadingLocation] {
+  implicit object HeadingLocationDeserializer extends DeserializerFromMap[HeadingLocation] {
 
     override def deserializeOpt(raw: Map[String, String]): Option[HeadingLocation] = {
       val dictionary = filterOutEmpty(raw)
@@ -72,7 +72,7 @@ object Deserializable {
 
   }
 
-  implicit object LeavingLocationDeserializer extends DeserFromMap[LeavingLocation] {
+  implicit object LeavingLocationDeserializer extends DeserializerFromMap[LeavingLocation] {
 
     override def deserializeOpt(raw: Map[String, String]): Option[LeavingLocation] = {
       val dictionary = filterOutEmpty(raw)
@@ -91,7 +91,7 @@ object Deserializable {
 
   }
 
-  implicit object LocationDeserializer extends DeserFromMap[Location] {
+  implicit object LocationDeserializer extends DeserializerFromMap[Location] {
 
     override def deserializeOpt(raw: Map[String, String]): Option[Location] = {
       val dictionary = filterOutEmpty(raw)
@@ -108,7 +108,7 @@ object Deserializable {
 
   }
 
-  implicit object AirportDeserializer extends DeserFromMap[Airport] {
+  implicit object AirportDeserializer extends DeserializerFromMap[Airport] {
 
     override def deserializeOpt(raw: Map[String, String]): Option[Airport] = {
       val dictionary = filterOutEmpty(raw)
@@ -152,7 +152,7 @@ object Deserializable {
 
   }
 
-  implicit object RunawayDeserializer extends DeserFromMap[Runaway] {
+  implicit object RunawayDeserializer extends DeserializerFromMap[Runaway] {
 
     override def deserializeOpt(raw: Map[String, String]): Option[Runaway] = {
       val dictionary = filterOutEmpty(raw)
@@ -186,7 +186,7 @@ object Deserializable {
 
   }
 
-  implicit object CountryDeserializer extends DeserFromMap[Country] {
+  implicit object CountryDeserializer extends DeserializerFromMap[Country] {
 
     override def deserializeOpt(raw: Map[String, String]): Option[Country] = {
       val dictionary = filterOutEmpty(raw)

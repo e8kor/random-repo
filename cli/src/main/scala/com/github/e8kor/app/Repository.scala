@@ -8,7 +8,7 @@ import scala.io.{Source => SSource}
 
 object Repository extends Source {
 
-  import com.github.e8kor.infrastructure.Deserializable._
+  import com.github.e8kor.infrastructure.Deserializer._
 
   private def fromResources(path: String): Stream[Map[String, String]] = {
     val lines = SSource.fromInputStream(this.getClass.getResourceAsStream(path))

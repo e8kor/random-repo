@@ -1,25 +1,36 @@
-package com.github.e8kor.infrastructure.experimental
+package com.github.e8kor.infrastructure
 
 import com.github.e8kor.model._
 import simulacrum._
 
-trait Ser[A, B] {
+trait Serializer[A, B] {
 
   def serialize(entity: A): B
 
 }
 
-@typeclass trait SerToMap[T] extends Ser[T, Map[String, String]] {
+@typeclass trait SerializerToMap[T] extends Serializer[T, Map[String, String]] {
 
   @op("""->!""") def serialize(entity: T): Map[String, String]
 
 }
 
-object SerToMap {
+object Serializer {
 
-  import SerToMap.ops._
+  import SerializerToMap.ops._
 
-  implicit object HeadingLocationSer extends SerToMap[HeadingLocation] {
+  implicit def optionSer[T: SerializerToMap]: SerializerToMap[Option[T]] = {
+    new SerializerToMap[Option[T]] {
+
+      override def serialize(entity: Option[T]): Map[String, String] = {
+        val companion = implicitly[SerializerToMap[T]]
+        entity.map(companion.serialize).getOrElse(Map.empty[String, String])
+      }
+
+    }
+  }
+
+  implicit object HeadingLocationSer extends SerializerToMap[HeadingLocation] {
 
     override def serialize(entity: HeadingLocation): Map[String, String] = {
       Map(
@@ -34,18 +45,8 @@ object SerToMap {
 
   }
 
-  implicit def optionSer[T: SerToMap]: SerToMap[Option[T]] = {
-    new SerToMap[Option[T]] {
 
-      override def serialize(entity: Option[T]): Map[String, String] = {
-        val companion = implicitly[SerToMap[T]]
-        entity.map(companion.serialize).getOrElse(Map.empty[String, String])
-      }
-
-    }
-  }
-
-  implicit object LeavingLocationSer extends SerToMap[LeavingLocation] {
+  implicit object LeavingLocationSer extends SerializerToMap[LeavingLocation] {
 
     override def serialize(entity: LeavingLocation): Map[String, String] = {
       Map(
@@ -60,7 +61,7 @@ object SerToMap {
 
   }
 
-  implicit object LocationSer extends SerToMap[Location] {
+  implicit object LocationSer extends SerializerToMap[Location] {
 
     override def serialize(entity: Location): Map[String, String] = {
       Map(
@@ -73,7 +74,7 @@ object SerToMap {
 
   }
 
-  implicit object AirportSer extends SerToMap[Airport] {
+  implicit object AirportSer extends SerializerToMap[Airport] {
 
     override def serialize(entity: Airport): Map[String, String] = {
       Map(
@@ -96,7 +97,7 @@ object SerToMap {
 
   }
 
-  implicit object RunawaySer extends SerToMap[Runaway] {
+  implicit object RunawaySer extends SerializerToMap[Runaway] {
 
     override def serialize(entity: Runaway): Map[String, String] = {
 
@@ -115,7 +116,7 @@ object SerToMap {
 
   }
 
-  implicit object CountrySer extends SerToMap[Country] {
+  implicit object CountrySer extends SerializerToMap[Country] {
 
     override def serialize(entity: Country): Map[String, String] = {
       Map(

@@ -1,54 +1,52 @@
 package com.github.e8kor.app
 
-import cats.Id
-import cats.data.Validated
 import cats.free.Free
-import com.github.e8kor.domain.experimental.free.ServiceAction._
-import com.github.e8kor.domain.experimental.free.{Action, ServiceAction, ServiceInterpreter}
-import com.github.e8kor.model.{Country, Ooops}
+import com.github.e8kor.domain.ServiceAction._
+import com.github.e8kor.domain.{AppInterpreter, ServiceAction}
+import com.github.e8kor.model.Record
+
+import scala.language.postfixOps
 
 object Application extends App {
 
-  val repository = Repository
+  implicit val _ = Repository
 
-  val interpereter = ServiceInterpreter(repository)
+  lazy val keywords: Iterable[String] = args toIterable
 
-  val a: Id[Validated[Iterable[Country], Iterable[Country]]] = findCountry(args).foldMap(interpereter)
+  lazy val interpreter = AppInterpreter()
 
-  //ap(findCountry(args))
-  //  val result = for {
-  //    countries <- findCountry(args)
-  //    country <- countries
-  //    airports <- findAirports(country)
-  //    airport <- airports
-  //    runaways <- findRunway(airport)
-  //    _ <- printSuccessDescription(country, airport, runaways)
-  //  } yield ()
-//  val result: Free[ServiceAction, Validated[Iterable[Country], Iterable[Free[ServiceAction, Validated[Ooops, Iterable[Free[ServiceAction, Validated[Ooops, Action[Unit]]]]]]]]] = findCountry(args).map(
-//    value =>
-//      value.map(
-//        v =>
-//          v.map(
-//            v1 =>
-//              findAirports(v1).map(
-//                v2 =>
-//                  v2.map(
-//                    v3 =>
-//                      v3.map(
-//                        v4 =>
-//                          findRunway(v4).map(
-//                            v5 =>
-//                              v5.map(
-//                                v6 =>
-//                                  printSuccessDescription(v1, v4, v6)
-//                              )
-//                          )
-//                      )
-//                  )
-//              )
-//          )
-//      )
-//  )
-//  val folded = result foldMap ServiceInterpreter(repository)
-//  result.
+  lazy val recordsFree: Free[ServiceAction, Iterable[Record]] = {
+    keywords map {
+      keyword =>
+        findCountry(keyword) flatMap {
+          countries =>
+            countries map {
+              country =>
+                findAirports(country) flatMap {
+                  airports =>
+                    airports map {
+                      airport =>
+                        findRunway(airport) map {
+                          runaways =>
+                            airport -> runaways
+                        }
+                    }
+                } map {
+                  tuples =>
+                    country -> tuples
+                }
+            }
+        } map {
+          records =>
+            keyword -> records
+        }
+    }
+  }
+
+  lazy val printFree: Free[ServiceAction, Unit] = for {
+    recods <- recordsFree
+    nothing <- printResult(recods)
+  } yield nothing
+
+  printFree foldMap interpreter
 }

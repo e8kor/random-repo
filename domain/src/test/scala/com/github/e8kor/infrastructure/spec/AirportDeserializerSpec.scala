@@ -5,7 +5,7 @@ import com.github.e8kor.model.HeadingLocation
 class AirportDeserializerSpec extends PropertySpec {
 
   property("deserialize", props) {
-    import com.github.e8kor.infrastructure.Deserializable._
+    import com.github.e8kor.infrastructure.Deserializer._
 
     val dictionary = Map(
       "he_ident" -> "81",
